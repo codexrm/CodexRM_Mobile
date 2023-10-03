@@ -13,8 +13,8 @@ public class BookSectionReference extends BookReference{
     public BookSectionReference() {}
 
     public BookSectionReference(String title, String year, String month, String note, String author, String editor, String publisher, String volume, String number, String series, String address, String edition, String isbn,
-                                String chapter, String pages, String type) {
-        super(title, year, month, note, author, editor, publisher, volume, number, series, address, edition, isbn);
+                                String chapter, String pages, String type, boolean isNew) {
+        super(title, year, month, note, author, editor, publisher, volume, number, series, address, edition, isbn, isNew);
         this.type = type;
 
         if(validations.validateChapterOrVolume(chapter))
@@ -26,8 +26,8 @@ public class BookSectionReference extends BookReference{
     }
 
     public BookSectionReference(Integer id, String title, String year, String month, String note, String author, String editor, String publisher, String volume, String number, String series, String address, String edition,
-                                String isbn, String chapter, String pages, String type) {
-        super(id, title, year, month, note, author, editor, publisher, volume, number, series, address, edition, isbn);
+                                String isbn, String chapter, String pages, String type, boolean isNew) {
+        super(id, title, year, month, note, author, editor, publisher, volume, number, series, address, edition, isbn, isNew);
         this.type = type;
 
         if(validations.validateChapterOrVolume(chapter))

@@ -1,0 +1,38 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="io.github.my.MainActivity">
+    <item
+        android:id="@+id/login"
+        android:title="@string/login" />
+    <item
+        android:id="@+id/sync"
+        android:title="@string/sync" />
+    <item
+        android:id="@+id/exportR"
+        android:title="@string/exportR" >
+        <menu >
+            <item
+                android:id="@+id/expRis"
+                android:title="@string/ris" />
+            <item
+                android:id="@+id/expBib"
+                android:title="@string/bibtex" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/importR"
+        android:title="@string/importR" >
+        <menu >
+            <item
+                android:id="@+id/impRis"
+                android:title="@string/ris" />
+            <item
+                android:id="@+id/impBib"
+                android:title="@string/bibtex" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/logout"
+        android:title="@string/logout" />
+</menu>

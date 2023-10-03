@@ -15,8 +15,8 @@ public class ArticleReference extends Reference {
 
     public ArticleReference() {}
 
-    public ArticleReference(String title, String year, String month, String note, String author, String journal, String volume, String number, String pages, String issn) {
-        super(title, year, month, note);
+    public ArticleReference(String title, String year, String month, String note, String author, String journal, String volume, String number, String pages, String issn, boolean isNew) {
+        super(title, year, month, note, isNew);
         this.journal = journal;
 
         if(validations.validateAuthorOrEditor(author))
@@ -35,8 +35,8 @@ public class ArticleReference extends Reference {
         this.issn = issn;
     }
 
-    public ArticleReference(Integer id, String title, String year, String month, String note, String author, String journal, String volume, String number, String pages, String issn) {
-        super(id, title, year, month, note);
+    public ArticleReference(Integer id, String title, String year, String month, String note, String author, String journal, String volume, String number, String pages, String issn, boolean isNew) {
+        super(id, title, year, month, note, isNew);
         this.journal = journal;
 
         if(validations.validateAuthorOrEditor(author))

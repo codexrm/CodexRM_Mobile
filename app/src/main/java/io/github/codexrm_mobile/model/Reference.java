@@ -4,30 +4,35 @@ import io.github.codexrm_mobile.utils.FieldValidations;
 
 public class Reference {
 
-    private Integer id;
-    private String title;
-    private String year;
-    private String month;
-    private String note;
+    protected Integer id;
+    protected String title;
+    protected String year;
+    protected String month;
+    protected String note;
+    protected boolean isNew;
+
 
     private final FieldValidations validations = new FieldValidations();
 
     public Reference() {}
 
-    public Reference(Integer id, String title, String year, String month, String note) {
+    public Reference(Integer id, String title, String year, String month, String note, boolean isNew) {
         this.id = id;
         this.title = title;
         this.month = month;
         this.note = note;
+        this.isNew = isNew;
+
 
         if(validations.validateYear(year))
             this.year = year;
     }
 
-    public Reference(String title, String year, String month, String note) {
+    public Reference(String title, String year, String month, String note, boolean isNew) {
         this.title = title;
         this.month = month;
         this.note = note;
+
 
         if(validations.validateYear(year))
             this.year = year;
@@ -55,4 +60,8 @@ public class Reference {
     public String getNote() { return note; }
 
     public void setNote(String note) { this.note = note; }
+
+    public boolean isNew() { return isNew; }
+
+    public void setNew(boolean aNew) { isNew = aNew; }
 }

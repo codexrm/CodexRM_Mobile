@@ -17,7 +17,6 @@ public class AuthenticationData {
     private Date refreshTokenExpirationDate;
     private List<String> roles;
 
-
     public AuthenticationData() { }
 
     public AuthenticationData(Integer id, String username, String name, String lastName, String email, boolean enabled, String token, String refreshToken, Date tokenExpirationDate, Date refreshTokenExpirationDate, List<String> roles) {

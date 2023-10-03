@@ -12,8 +12,8 @@ public class BookLetReference extends Reference{
 
     public BookLetReference() {}
 
-    public BookLetReference(String title, String year, String month, String note, String author, String howpublished, String address) {
-        super(title, year, month, note);
+    public BookLetReference(String title, String year, String month, String note, String author, String howpublished, String address, boolean isNew) {
+        super(title, year, month, note, isNew);
         this.howpublished = howpublished;
 
         if(validations.validateAuthorOrEditor(author))
@@ -23,8 +23,8 @@ public class BookLetReference extends Reference{
         this.address = address;
     }
 
-    public BookLetReference(Integer id, String title, String year, String month, String note, String author, String howpublished, String address) {
-        super(id, title, year, month, note);
+    public BookLetReference(Integer id, String title, String year, String month, String note, String author, String howpublished, String address, boolean isNew) {
+        super(id, title, year, month, note, isNew);
         this.howpublished = howpublished;
 
         if(validations.validateAuthorOrEditor(author))

@@ -13,8 +13,8 @@ public class ThesisReference extends Reference{
 
     public ThesisReference() {}
 
-    public ThesisReference(String title, String year, String month, String note, String author, String school, String type, String address) {
-        super(title, year, month, note);
+    public ThesisReference(String title, String year, String month, String note, String author, String school, String type, String address, boolean isNew) {
+        super(title, year, month, note, isNew);
         this.school = school;
         this.type = type;
 
@@ -25,8 +25,8 @@ public class ThesisReference extends Reference{
         this.address = address;
     }
 
-    public ThesisReference(Integer id, String title, String year, String month, String note, String author, String school, String type, String address) {
-        super(id, title, year, month, note);
+    public ThesisReference(Integer id, String title, String year, String month, String note, String author, String school, String type, String address, boolean isNew) {
+        super(id, title, year, month, note, isNew);
         this.school = school;
         this.type = type;
 

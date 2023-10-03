@@ -4,22 +4,22 @@ import io.github.codexrm_mobile.utils.FieldValidations;
 
 public class BookReference extends Reference{
 
-    private String author;
-    private String editor;
-    private String publisher;
-    private String volume;
-    private String number;
-    private String series;
-    private String address;
-    private String edition;
-    private String isbn;
+    protected String author;
+    protected String editor;
+    protected String publisher;
+    protected String volume;
+    protected String number;
+    protected String series;
+    protected String address;
+    protected String edition;
+    protected String isbn;
 
     private final FieldValidations validations = new FieldValidations();
 
     public BookReference() {}
 
-    public BookReference(String title, String year, String month, String note, String author, String editor, String publisher, String volume, String number, String series, String address, String edition, String isbn) {
-        super(title, year, month, note);
+    public BookReference(String title, String year, String month, String note, String author, String editor, String publisher, String volume, String number, String series, String address, String edition, String isbn, boolean isNew) {
+        super(title, year, month, note, isNew);
         this.publisher = publisher;
 
         if(validations.validateAuthorOrEditor(author))
@@ -47,8 +47,8 @@ public class BookReference extends Reference{
         this.isbn = isbn;
     }
 
-    public BookReference(Integer id, String title, String year, String month, String note, String author, String editor, String publisher, String volume, String number, String series, String address, String edition, String isbn) {
-        super(id, title, year, month, note);
+    public BookReference(Integer id, String title, String year, String month, String note, String author, String editor, String publisher, String volume, String number, String series, String address, String edition, String isbn, boolean isNew) {
+        super(id, title, year, month, note, isNew);
         this.publisher = publisher;
 
         if(validations.validateAuthorOrEditor(author))

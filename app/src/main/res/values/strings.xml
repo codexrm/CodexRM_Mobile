@@ -1,17 +1,26 @@
 <resources>
-    <string name="app_name">CodexRM_Mobile</string>
-    <string name="info">String</string>
-    <string name="sync">Sync</string>
+    <string name="app_name">CodexRM</string>
+    <string name="sync">Sincronizar</string>
+    <string name="logout">Cerrar Sesión</string>
+    <string name="login_boton">Log in</string>
+    <string name="login">Iniciar Sesión</string>
+    <string name="exportR">Exportar</string>
+    <string name="importR">Importar</string>
+    <string name="ris">Ris</string>
+    <string name="bibtex">BibTeX</string>
+    <string name="info_text">Acceso al usuario</string>
+    <string name="import_button">Importar</string>
+    <string name="infoImport_text">Intoduzca la rurta del fichero</string>
+
     <string name="title_activity_login">LoginActivity</string>
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in or register</string>
+    <string name="prompt_username">Usuario</string>
+    <string name="prompt_password">Contraseña</string>
+    <string name="action_sign_in">Log in</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="welcome">"Welcome !"</string>
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
-    <string name="log_in">String</string>
     <string name="nombre_de_usuario">String</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

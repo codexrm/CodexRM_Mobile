@@ -17,8 +17,8 @@ public class ConferenceProceedingReference extends Reference {
 
     public ConferenceProceedingReference() {}
 
-    public ConferenceProceedingReference(String title, String year, String month, String note, String editor, String volume, String number, String series, String address, String publisher, String isbn, String organization) {
-        super(title, year, month, note);
+    public ConferenceProceedingReference(String title, String year, String month, String note, String editor, String volume, String number, String series, String address, String publisher, String isbn, String organization, boolean isNew) {
+        super(title, year, month, note, isNew);
         this.publisher = publisher;
         this.organization = organization;
 
@@ -42,8 +42,8 @@ public class ConferenceProceedingReference extends Reference {
     }
 
     public ConferenceProceedingReference(Integer id, String title, String year, String month, String note, String editor, String volume, String number, String series, String address, String publisher, String isbn,
-                                         String organization) {
-        super(id, title, year, month, note);
+                                         String organization, boolean isNew) {
+        super(id, title, year, month, note, isNew);
         this.publisher = publisher;
         this.organization = organization;
 

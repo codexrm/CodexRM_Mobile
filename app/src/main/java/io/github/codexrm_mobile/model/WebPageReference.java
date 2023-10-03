@@ -11,8 +11,8 @@ public class WebPageReference extends Reference {
 
     public WebPageReference() {}
 
-    public WebPageReference(String title, String year, String month, String note, String author, String url) {
-        super(title, year, month, note);
+    public WebPageReference(String title, String year, String month, String note, String author, String url, boolean isNew) {
+        super(title, year, month, note, isNew);
 
         if(validations.validateAuthorOrEditor(author))
         this.author = author;
@@ -21,8 +21,8 @@ public class WebPageReference extends Reference {
         this.url = url;
     }
 
-    public WebPageReference(Integer id, String title, String year, String month, String note, String author, String url) {
-        super(id, title, year, month, note);
+    public WebPageReference(Integer id, String title, String year, String month, String note, String author, String url, boolean isNew) {
+        super(id, title, year, month, note, isNew);
 
         if(validations.validateAuthorOrEditor(author))
             this.author = author;
