@@ -6,18 +6,32 @@ import org.jbibtex.TokenMgrException;
 
 import org.jbibtex.*;
 
-import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import io.github.codexrm_mobile.model.*;
+import io.github.codexrm_mobile.utils.ValidateReference;
 
 public class ImportBibTeX implements Import {
+
+    private final ValidateReference validation;
+
+    public ImportBibTeX() {
+        this.validation = new ValidateReference();
+    }
+
     @Override
-    public ArrayList<Reference> readFile(String path) throws IOException, TokenMgrException, ParseException {
-        Reader reader = new FileReader(path);
+    public ArrayList<Reference> readFile(File file) throws IOException, TokenMgrException, ParseException {
+
+        FileInputStream fis = new FileInputStream(file);
+        InputStreamReader input = new InputStreamReader(fis);
+        BufferedReader reader = new BufferedReader(input);
+
         BibTeXParser bibtexParser = new BibTeXParser();
         BibTeXDatabase database = bibtexParser.parseFully(reader);
         Map<Key, BibTeXEntry> entryMap = database.getEntries();
@@ -56,6 +70,7 @@ public class ImportBibTeX implements Import {
                 }
             }
             if (reference != null) {
+                if(reference.isNew())
                 referenceList.add(reference);
             }
             reference = null;
@@ -68,33 +83,30 @@ public class ImportBibTeX implements Import {
         String[] people = content.split(" and ", 2);
         StringBuilder person = new StringBuilder(people[0]);
 
-        for (int i = 1; i < people.length; i++) {
+        for (int i = 1; i < people.length; i++)
             person.append(";").append(people[i]);
-        }
+
         return person.toString();
     }
 
     private void commonField(BibTeXEntry entry, Reference baseR) {
 
         Value value = entry.getField(BibTeXEntry.KEY_TITLE);
-        if (value != null) {
+        if (value != null)
             baseR.setTitle(value.toUserString());
-        }
 
         value = entry.getField(BibTeXEntry.KEY_YEAR);
-        if (value != null ) {
+        if (value != null )
             baseR.setYear(value.toUserString());
-        }
 
         value = entry.getField(BibTeXEntry.KEY_MONTH);
-        if (value != null) {
+        if (value != null)
             baseR.setMonth(getMonth(value.toUserString()));
-        }
 
         value = entry.getField(BibTeXEntry.KEY_NOTE);
-        if (value != null) {
+        if (value != null)
             baseR.setNote(value.toUserString());
-        }
+
         baseR.setNew(true);
     }
 
@@ -168,212 +180,215 @@ public class ImportBibTeX implements Import {
     private Reference createArticleReference(BibTeXEntry entry) {
         ArticleReference article = new ArticleReference();
         commonField(entry, article);
-        Value value = entry.getField(BibTeXEntry.KEY_AUTHOR);
-        if (value != null) {
-            article.setAuthor(createAuthorOrEditorField(value.toUserString()));
-        }
-        value = entry.getField(BibTeXEntry.KEY_JOURNAL);
-        if (value != null) {
-            article.setJournal(value.toUserString());
-        }
-        value = entry.getField(BibTeXEntry.KEY_VOLUME);
-        if (value != null) {
-            article.setVolume(value.toUserString());
-        }
-        value = entry.getField(BibTeXEntry.KEY_NUMBER);
-        if (value != null) {
-            article.setNumber(value.toUserString());
-        }
-        value = entry.getField(BibTeXEntry.KEY_PAGES);
-        if (value != null) {
-            article.setPages(value.toUserString());
-        }
 
-        return article;
+        Value value = entry.getField(BibTeXEntry.KEY_AUTHOR);
+        if (value != null)
+            article.setAuthor(createAuthorOrEditorField(value.toUserString()));
+
+        value = entry.getField(BibTeXEntry.KEY_JOURNAL);
+        if (value != null)
+            article.setJournal(value.toUserString());
+
+        value = entry.getField(BibTeXEntry.KEY_VOLUME);
+        if (value != null)
+            article.setVolume(value.toUserString());
+
+        value = entry.getField(BibTeXEntry.KEY_NUMBER);
+        if (value != null)
+            article.setNumber(value.toUserString());
+
+        value = entry.getField(BibTeXEntry.KEY_PAGES);
+        if (value != null)
+            article.setPages(value.toUserString());
+
+        return validation.validateRequiredArticle(article);
     }
 
     private Reference createBookReference(BibTeXEntry entry) {
         BookReference book = new BookReference();
         createBook(entry, book);
-        return book;
+        return validation.validateRequiredBook(book);
     }
 
     private void createBook(BibTeXEntry entry, BookReference book) {
         commonField(entry, book);
+
         Value value = entry.getField(BibTeXEntry.KEY_AUTHOR);
-        if (value != null) {
+        if (value != null)
             book.setAuthor(createAuthorOrEditorField(value.toUserString()));
-        }
+
         value = entry.getField(BibTeXEntry.KEY_EDITOR);
-        if (value != null) {
+        if (value != null)
             book.setEditor(createAuthorOrEditorField(value.toUserString()));
-        }
+
         value = entry.getField(BibTeXEntry.KEY_PUBLISHER);
-        if (value != null) {
+        if (value != null)
             book.setPublisher(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_VOLUME);
-        if (value != null) {
+        if (value != null)
             book.setVolume(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_NUMBER);
-        if (value != null) {
+        if (value != null)
             book.setNumber(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_SERIES);
-        if (value != null) {
+        if (value != null)
             book.setSeries(value.toUserString());
-        }
+
          value = entry.getField(BibTeXEntry.KEY_ADDRESS);
-        if (value != null) {
+        if (value != null)
             book.setAddress(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_EDITION);
-        if (value != null) {
+        if (value != null)
             book.setEdition(value.toUserString());
-        }
     }
 
     private Reference createBookSectionReference(BibTeXEntry entry) {
         BookSectionReference bookSection = new BookSectionReference();
         createBook(entry, bookSection);
+
         Value value = entry.getField(BibTeXEntry.KEY_CHAPTER);
-        if (value != null) {
+        if (value != null)
             bookSection.setChapter(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_PAGES);
-        if (value != null) {
+        if (value != null)
             bookSection.setPages(value.toUserString());
-        }
 
          value = entry.getField(BibTeXEntry.KEY_TYPE);
-        if (value != null) {
+        if (value != null)
             bookSection.setType(value.toUserString());
-        }
 
-        return bookSection;
+        return validation.validateRequiredBookSection(bookSection);
     }
 
     private Reference createBookLetReference(BibTeXEntry entry) {
         BookLetReference bookLet = new BookLetReference();
         commonField(entry, bookLet);
+
         Value value = entry.getField(BibTeXEntry.KEY_AUTHOR);
-        if (value != null) {
+        if (value != null)
             bookLet.setAuthor(createAuthorOrEditorField(value.toUserString()));
-        }
+
         value = entry.getField(BibTeXEntry.KEY_HOWPUBLISHED);
-        if (value != null) {
+        if (value != null)
             bookLet.setHowpublished(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_ADDRESS);
-        if (value != null) {
+        if (value != null)
             bookLet.setAddress(value.toUserString());
-        }
-        return bookLet;
+
+        return validation.validateRequiredBookLet(bookLet);
     }
 
     private Reference createThesisReference(BibTeXEntry entry) {
         ThesisReference thesis = new ThesisReference();
         commonField(entry, thesis);
+
         Value value = entry.getField(BibTeXEntry.KEY_AUTHOR);
-        if (value != null) {
+        if (value != null)
             thesis.setAuthor(createAuthorOrEditorField(value.toUserString()));
-        }
+
         value = entry.getField(BibTeXEntry.KEY_SCHOOL);
-        if (value != null) {
+        if (value != null)
             thesis.setSchool(value.toUserString());
-        }
-        if (entry.getType().getValue().equals("mastersthesis")) {
+
+        if (entry.getType().getValue().equals("mastersthesis"))
             thesis.setType("MASTERS");
-        } else {
+         else
             thesis.setType("PHD");
-        }
+
         value = entry.getField(BibTeXEntry.KEY_ADDRESS);
-        if (value != null) {
+        if (value != null)
             thesis.setAddress(value.toUserString());
-        }
-        return thesis;
+
+        return validation.validateRequiredThesis(thesis);
     }
 
     private Reference createConferenceProceedingsReference(BibTeXEntry entry) {
 
         ConferenceProceedingReference proceedings = new ConferenceProceedingReference();
         commonField(entry, proceedings);
+
         Value value = entry.getField(BibTeXEntry.KEY_EDITOR);
-        if (value != null) {
+        if (value != null)
             proceedings.setEditor(createAuthorOrEditorField(value.toUserString()));
-        }
+
         value = entry.getField(BibTeXEntry.KEY_VOLUME);
-        if (value != null) {
+        if (value != null)
             proceedings.setVolume(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_NUMBER);
-        if (value != null) {
+        if (value != null)
             proceedings.setNumber(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_SERIES);
-        if (value != null) {
+        if (value != null)
             proceedings.setSeries(value.toUserString());
-        }
+
          value = entry.getField(BibTeXEntry.KEY_ADDRESS);
-        if (value != null) {
+        if (value != null)
             proceedings.setAddress(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_PUBLISHER);
-        if (value != null) {
+        if (value != null)
             proceedings.setPublisher(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_ORGANIZATION);
-        if (value != null) {
+        if (value != null)
             proceedings.setOrganization(value.toUserString());
-        }
-        return proceedings;
+
+        return validation.validateRequiredConferenceProceedings(proceedings);
     }
 
     private Reference createConferencePaperReference(BibTeXEntry entry) {
 
         ConferencePaperReference paper = new ConferencePaperReference();
         commonField(entry, paper);
+
         Value value = entry.getField(BibTeXEntry.KEY_AUTHOR);
-        if (value != null) {
+        if (value != null)
             paper.setAuthor(createAuthorOrEditorField(value.toUserString()));
-        }
+
         value = entry.getField(BibTeXEntry.KEY_BOOKTITLE);
-        if (value != null) {
+        if (value != null)
             paper.setBookTitle(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_EDITOR);
-        if (value != null) {
+        if (value != null)
             paper.setEditor(createAuthorOrEditorField(value.toUserString()));
-        }
+
         value = entry.getField(BibTeXEntry.KEY_VOLUME);
-        if (value != null) {
+        if (value != null)
             paper.setVolume(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_NUMBER);
-        if (value != null) {
+        if (value != null)
             paper.setNumber(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_SERIES);
-        if (value != null) {
+        if (value != null)
             paper.setSeries(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_PAGES);
-        if (value != null) {
+        if (value != null)
             paper.setPages(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_ADDRESS);
-        if (value != null) {
+        if (value != null)
             paper.setAddress(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_ORGANIZATION);
-        if (value != null) {
+        if (value != null)
             paper.setOrganization(value.toUserString());
-        }
+
         value = entry.getField(BibTeXEntry.KEY_PUBLISHER);
-        if (value != null) {
+        if (value != null)
             paper.setPublisher(value.toUserString());
-        }
-        return paper;
+
+        return validation.validateRequiredConferencePaper(paper);
     }
 }

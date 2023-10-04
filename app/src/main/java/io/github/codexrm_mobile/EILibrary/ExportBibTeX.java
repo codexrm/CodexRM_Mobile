@@ -56,8 +56,6 @@ public class ExportBibTeX implements Export {
                                  else
                                     if (reference instanceof WebPageReference)
                                         writeWebPageReference((WebPageReference) reference, writer);
-
-
     }
 
     private void writeAuthors(String author, OutputStreamWriter writer)
@@ -99,8 +97,6 @@ public class ExportBibTeX implements Export {
             writer.write("\n");
         }
     }
-
-
 
     private void commonField(Reference reference, OutputStreamWriter writer) throws IOException {
 

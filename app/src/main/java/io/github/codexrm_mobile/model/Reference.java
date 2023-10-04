@@ -4,13 +4,12 @@ import io.github.codexrm_mobile.utils.FieldValidations;
 
 public class Reference {
 
-    protected Integer id;
-    protected String title;
-    protected String year;
-    protected String month;
-    protected String note;
-    protected boolean isNew;
-
+    private Integer id;
+    private String title;
+    private String year;
+    private String month;
+    private String note;
+    private boolean isNew;
 
     private final FieldValidations validations = new FieldValidations();
 
@@ -23,7 +22,6 @@ public class Reference {
         this.note = note;
         this.isNew = isNew;
 
-
         if(validations.validateYear(year))
             this.year = year;
     }
@@ -32,7 +30,7 @@ public class Reference {
         this.title = title;
         this.month = month;
         this.note = note;
-
+        this.isNew = isNew;
 
         if(validations.validateYear(year))
             this.year = year;

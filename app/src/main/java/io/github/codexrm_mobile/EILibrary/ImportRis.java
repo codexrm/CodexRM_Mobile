@@ -4,38 +4,44 @@ import org.jbibtex.ParseException;
 import org.jbibtex.TokenMgrException;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.github.codexrm_mobile.model.*;
+import io.github.codexrm_mobile.utils.ValidateReference;
 
 public class ImportRis implements Import {
 
+    private final ValidateReference validation;
+
     public ImportRis() {
-        // Do nothing
+        this.validation = new ValidateReference();
     }
 
     @Override
-    public ArrayList<Reference> readFile(String path) throws IOException, TokenMgrException, ParseException {
-        ArrayList<Reference> referenceList = new ArrayList<>();
-        Reader reader = new FileReader(path);
+    public ArrayList<Reference> readFile(File file) throws IOException, TokenMgrException, ParseException {
 
+        FileInputStream fis = new FileInputStream(file);
+        InputStreamReader input = new InputStreamReader(fis);
+        BufferedReader reader = new BufferedReader(input);
+
+        ArrayList<Reference> referenceList = new ArrayList<>();
         final ArrayList<String[]> listString = new ArrayList<>();
-        final BufferedReader br = new BufferedReader(reader);
         String line;
 
-        while ((line = br.readLine()) != null) {
+        while ((line = reader.readLine()) != null) {
             String[] partLine = validateExpression(line);
             if (partLine.length != 0) {
                 final String field = partLine[0].trim();
                 if (field.equals("TY")) {
                     listString.add(partLine);
                     while (!line.equals("ER  - ")) {
-                        line = br.readLine();
+                        line = reader.readLine();
                         partLine = validateExpression(line);
                         if (partLine.length != 0) {
                             listString.add(partLine);
@@ -49,9 +55,7 @@ public class ImportRis implements Import {
                 }
             }
         }
-        br.close();
-
-
+        reader.close();
 
         return referenceList;
     }
@@ -60,12 +64,10 @@ public class ImportRis implements Import {
 
         final Pattern pat = Pattern.compile("^[A-Z][A-Z1-9]\\s\\s-\\s.*");
         final Matcher mat = pat.matcher(line);
-        if (mat.matches()) {
+        if (mat.matches())
             return line.split("-", 2);
-        } else {
-
-            return new String[0];
-        }
+         else
+             return new String[0];
     }
 
     private Reference createReference(final ArrayList<String[]> listPartLine) {
@@ -152,7 +154,7 @@ public class ImportRis implements Import {
                 default:
             }
         }
-        return journal;
+        return validation.validateRequiredArticle(journal);
     }
 
     private Reference createBook(final ArrayList<String[]> listPartLine) {
@@ -204,7 +206,7 @@ public class ImportRis implements Import {
                 default:
             }
         }
-        return book;
+        return validation.validateRequiredBook(book);
     }
 
     private Reference createBookSection(final ArrayList<String[]> listPartLine) {
@@ -262,7 +264,7 @@ public class ImportRis implements Import {
                 default:
             }
         }
-        return section;
+        return validation.validateRequiredBookSection(section);
     }
 
     private Reference createThesis(final ArrayList<String[]> listPartLine) {
@@ -299,7 +301,7 @@ public class ImportRis implements Import {
                 default:
             }
         }
-        return thesis;
+        return validation.validateRequiredThesis(thesis);
     }
 
     private Reference createConferenceProceeding(final ArrayList<String[]> listPartLine) {
@@ -342,7 +344,7 @@ public class ImportRis implements Import {
                 default:
             }
         }
-        return proceedings;
+        return validation.validateRequiredConferenceProceedings(proceedings);
     }
 
     private Reference createConferencePaper(final ArrayList<String[]> listPartLine) {
@@ -385,7 +387,7 @@ public class ImportRis implements Import {
                 default:
             }
         }
-        return paper;
+        return validation.validateRequiredConferencePaper(paper);
     }
 
     private Reference createWebPage(final ArrayList<String[]> listPartLine) {

@@ -30,9 +30,9 @@ public class ExportRis implements Export {
         FileOutputStream fos = new FileOutputStream(file);
         OutputStreamWriter writer = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
 
-        for (final Reference entry : referenceList) {
+        for (final Reference entry : referenceList)
             identifyType(entry, writer);
-        }
+
         writer.flush();
         writer.close();
     }

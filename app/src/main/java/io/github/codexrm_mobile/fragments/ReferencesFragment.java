@@ -15,10 +15,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
-
 import org.jbibtex.ParseException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -41,8 +40,6 @@ public class ReferencesFragment extends Fragment {
         this.referenceDialog = new ReferenceDialog();
         this.manager = new ReferenceLibraryManager();
     }
-
-    public String getImportFormat() { return importFormat; }
 
     public void setImportFormat(String importFormat) { ReferencesFragment.importFormat = importFormat; }
 
@@ -149,9 +146,9 @@ public class ReferencesFragment extends Fragment {
         return builder.create();
     }
 
-    public void createImportReference(String path) {
+    public void createImportReference(File file) {
         try {
-                manager.importReferences(path, importFormat);
+                manager.importReferences(file, importFormat);
                 updateList();
                 Toast.makeText(
                         getActivity(),
@@ -223,9 +220,8 @@ public class ReferencesFragment extends Fragment {
                             password.setError("Campo obligatorio");
                             password.requestFocus();
                         }
-                        else{
+                        else
                             manager.setUserLogin(new UserLogin(username.getText().toString(), password.getText().toString()));
-                        }
                     }
                 }
         );
@@ -293,9 +289,8 @@ public class ReferencesFragment extends Fragment {
 
     private ArrayList<Reference> referenceSelectedExport(ArrayList<Integer> itemsSeleccionados, ArrayList<Reference> referenceList){
         ArrayList<Reference> referenceSelectedList = new ArrayList();
-        for(int i = 0; i < itemsSeleccionados.size(); i++) {
+        for(int i = 0; i < itemsSeleccionados.size(); i++)
             referenceSelectedList.add(referenceList.get(itemsSeleccionados.get(i).intValue()));
-        }
 
         return referenceSelectedList;
     }

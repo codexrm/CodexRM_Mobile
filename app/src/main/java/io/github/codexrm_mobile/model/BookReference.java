@@ -4,15 +4,15 @@ import io.github.codexrm_mobile.utils.FieldValidations;
 
 public class BookReference extends Reference{
 
-    protected String author;
-    protected String editor;
-    protected String publisher;
-    protected String volume;
-    protected String number;
-    protected String series;
-    protected String address;
-    protected String edition;
-    protected String isbn;
+    private String author;
+    private String editor;
+    private String publisher;
+    private String volume;
+    private String number;
+    private String series;
+    private String address;
+    private String edition;
+    private String isbn;
 
     private final FieldValidations validations = new FieldValidations();
 

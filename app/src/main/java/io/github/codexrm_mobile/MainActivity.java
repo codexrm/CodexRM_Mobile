@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -26,19 +25,10 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import io.github.codexrm_mobile.fragments.ReferencesFragment;
 import io.github.codexrm_mobile.model.AuthenticationData;
@@ -52,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
     private ReferencesFragment referencesFragment;
-    private RequestQueue queue;
     private final String url = "https://192.168.137.1:8081/api/";
 
     @Override
@@ -69,8 +58,6 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.references_container, referencesFragment)
                     .commit();
         }
-
-        queue = Volley.newRequestQueue(this);
     }
 
     @Override
@@ -102,11 +89,13 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.impRis:
+                verifyStoragePermissions(this);
                 referencesFragment.setImportFormat("RIS");
                 showFileChooser();
                 return true;
 
             case R.id.impBib:
+                verifyStoragePermissions(this);
                 referencesFragment.setImportFormat("BIBTEX");
                 showFileChooser();
                 return true;
@@ -136,55 +125,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data){
         if(requestCode == 100 && resultCode == RESULT_OK && data != null){
             Uri uri = data.getData();
-            File file = new File(uri.getPath());
-            referencesFragment.createImportReference(uri.getPath());
+            String path = uri.getLastPathSegment();
+            String[] pathS = path.split(":");
+            referencesFragment.createImportReference(new File(String.valueOf(Environment.getExternalStoragePublicDirectory(pathS[1]))));
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private AuthenticationData login(UserLogin userLogin){
-
-        HashMap<String,String> hashMapLogin = new HashMap<>();
-        hashMapLogin.put("username", userLogin.getUsername());
-        hashMapLogin.put("password", userLogin.getPassword());
-        AuthenticationData authenticationData = new AuthenticationData();
-
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url + "auth/signin", new JSONObject(hashMapLogin),
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                        JSONObject mJsonObject = response;
-                        try {
-                            authenticationData.setId(mJsonObject.getInt("id"));
-                            authenticationData.setUsername(mJsonObject.getString("username"));
-                            authenticationData.setName(mJsonObject.getString("name"));
-                            authenticationData.setLastName(mJsonObject.getString("lastName"));
-                            authenticationData.setEmail(mJsonObject.getString("email"));
-                            authenticationData.setEnabled(mJsonObject.getBoolean("enabled"));
-                            authenticationData.setToken(mJsonObject.getString("type")+ " " + mJsonObject.getString("token"));
-                            authenticationData.setRefreshToken(mJsonObject.getString("refreshToken"));
-                            authenticationData.setTokenExpirationDate((Date) mJsonObject.get("tokenExpirationDate"));
-                            authenticationData.setRefreshTokenExpirationDate((Date) mJsonObject.get("refreshTokenExpirationDate"));
-                            authenticationData.setRoles((List<String>) mJsonObject.getJSONArray("roles"));
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener(){
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                    }
-
-                });
-        queue.add(request);
-        return authenticationData;
-    }
-
-    public static void verifyStoragePermissions(Activity activity) {
+    private static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
@@ -195,37 +143,6 @@ public class MainActivity extends AppCompatActivity {
                     PERMISSIONS_STORAGE,
                     REQUEST_EXTERNAL_STORAGE
             );
-        }
-    }
-
-    private void test(){
-        try {
-
-
-            File fichero = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "fichero.txt");
-
-            /**Escribir fichero*/
-            FileOutputStream fos = new FileOutputStream(fichero);
-            OutputStreamWriter writer = new OutputStreamWriter(fos);
-
-            writer.write("Linea1");
-            writer.write("\n"); //Salto de linea
-            writer.write("Linea2");
-
-            writer.flush();
-            writer.close();
-
-            /**Leer Fichero*/
-            FileInputStream fis = new FileInputStream(fichero);
-            InputStreamReader input = new InputStreamReader(fis);
-            BufferedReader reader = new BufferedReader(input);
-
-            String line = reader.readLine();
-
-            Toast.makeText(this, line, Toast.LENGTH_SHORT).show();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 }
