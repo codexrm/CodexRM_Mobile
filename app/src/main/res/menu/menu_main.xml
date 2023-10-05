@@ -6,6 +6,9 @@
         android:id="@+id/login"
         android:title="@string/login" />
     <item
+        android:id="@+id/ipAddress"
+        android:title="@string/ipAddress" />
+    <item
         android:id="@+id/sync"
         android:title="@string/sync" />
     <item

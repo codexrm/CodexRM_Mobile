@@ -10,8 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -22,11 +20,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import io.github.codexrm_mobile.R;
+import io.github.codexrm_mobile.Retrofit.LoginResponse;
 import io.github.codexrm_mobile.controller.ReferenceLibraryManager;
 import io.github.codexrm_mobile.model.AuthenticationData;
 import io.github.codexrm_mobile.model.Reference;
 import io.github.codexrm_mobile.model.ReferenceDialog;
-import io.github.codexrm_mobile.model.UserLogin;
 
 public class ReferencesFragment extends Fragment {
 
@@ -196,54 +194,15 @@ public class ReferencesFragment extends Fragment {
         return builder.create();
     }
 
-    public AlertDialog createLoginDialog() {
+    public void loginUser(LoginResponse response){
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        View v = inflater.inflate(R.layout.dialog_signin, null);
+        if(manager.userLogin(new AuthenticationData(response.getId(), response.getUsername(), response.getName(), response.getLastName(), response.getEmail(), response.isEnabled(),
+               response.getAccessToken(), response.getRefreshToken(), response.getTokenExpirationDate(), response.getRefreshTokenExpirationDate(), response.getRoles())))
+            Toast.makeText(getActivity(), "Usuario logeado satisfactoriamente", Toast.LENGTH_SHORT).show();
 
-        builder.setView(v);
+       else Toast.makeText(getActivity(), "Hubo un error al realizar la solicitud", Toast.LENGTH_SHORT).show();
 
-        Button signin = (Button) v.findViewById(R.id.buttonLogin);
-        EditText username = (EditText) v.findViewById(R.id.username_input);
-        EditText password = (EditText) v.findViewById(R.id.password_input);
-
-        signin.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(username.getText().toString().isEmpty()){
-                            username.setError("Campo obligatorio");
-                            username.requestFocus();
-                        }else
-                        if(password.getText().toString().isEmpty()){
-                            password.setError("Campo obligatorio");
-                            password.requestFocus();
-                        }
-                        else
-                            manager.setUserLogin(new UserLogin(username.getText().toString(), password.getText().toString()));
-                    }
-                }
-        );
-        return builder.create();
     }
-
-    public void userLogin(AuthenticationData authenticationData){
-        if(manager.userLogin(authenticationData))
-            Toast.makeText(
-                    getActivity(),
-                    "Usuario logeado satisfactoriamente",
-                    Toast.LENGTH_SHORT)
-                    .show();
-
-        else
-            Toast.makeText(
-                    getActivity(),
-                    "Hubo un error al realizar la solicitud",
-                    Toast.LENGTH_SHORT)
-                    .show();
-    }
-
     public AlertDialog createLogoutDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Cerrar Sesión")

@@ -15,11 +15,14 @@ import io.github.codexrm_mobile.model.*;
 public class ReferenceLibraryManager {
 
     private Hashtable<Integer, Reference> references;
+    private UserLogin userLogin;
     private AuthenticationData authenticationData;
     private ExportFactory exportFactory;
     private ImportFactory importFactory;
+
     private final String pathExported = "exportedReference.txt";
-    private UserLogin userLogin;
+
+
 
     public ReferenceLibraryManager() {
         this.references = new Hashtable<>();
@@ -58,7 +61,6 @@ public class ReferenceLibraryManager {
     private void saveReference(Reference reference) { references.put(reference.getId(), reference); }
 
     public List<Reference> getReference() { return new ArrayList<>(references.values()); }
-
 
     //Reference
     public boolean syncReferences() {

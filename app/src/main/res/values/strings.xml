@@ -1,20 +1,25 @@
 <resources>
     <string name="app_name">CodexRM</string>
+
     <string name="sync">Sincronizar</string>
     <string name="logout">Cerrar Sesión</string>
-    <string name="login_boton">Log in</string>
+    <string name="ipAddress">Dirección IP</string>
     <string name="login">Iniciar Sesión</string>
     <string name="exportR">Exportar</string>
     <string name="importR">Importar</string>
     <string name="ris">Ris</string>
     <string name="bibtex">BibTeX</string>
-    <string name="info_text">Acceso al usuario</string>
-    <string name="import_button">Importar</string>
-    <string name="infoImport_text">Intoduzca la rurta del fichero</string>
 
-    <string name="title_activity_login">LoginActivity</string>
+    <string name="info_text">Acceso al usuario</string>
     <string name="prompt_username">Usuario</string>
     <string name="prompt_password">Contraseña</string>
+    <string name="login_boton">Iniciar Sesión</string>
+
+    <string name="infoIpAddress_text">Establecer la dirección IP del servidor</string>
+    <string name="prompt_ipAddress">Dirección IP</string>
+    <string name="ipAddress_boton">Establecer</string>
+
+    <string name="title_activity_login">LoginActivity</string>
     <string name="action_sign_in">Log in</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="welcome">"Welcome !"</string>
