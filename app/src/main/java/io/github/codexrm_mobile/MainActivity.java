@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -23,7 +24,10 @@ import android.widget.Toast;
 import java.io.File;
 
 import io.github.codexrm_mobile.Retrofit.LoginResponse;
-import io.github.codexrm_mobile.Retrofit.LoginService;
+import io.github.codexrm_mobile.Retrofit.MessageResponse;
+import io.github.codexrm_mobile.Retrofit.TokenRefreshRequest;
+import io.github.codexrm_mobile.Retrofit.TokenRefreshResponse;
+import io.github.codexrm_mobile.Retrofit.UserService;
 import io.github.codexrm_mobile.fragments.ReferencesFragment;
 import io.github.codexrm_mobile.model.UserLogin;
 import retrofit2.Call;
@@ -103,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.logout:
-                referencesFragment.createLogoutDialog().show();
+                createLogoutDialog().show();
                 return true;
 
             default:
@@ -179,6 +183,36 @@ public class MainActivity extends AppCompatActivity {
         return builder.create();
     }
 
+    public AlertDialog createLogoutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Cerrar Sesión")
+                .setMessage("Desea cerrar su sesión")
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if(referencesFragment.verificateUserLogout())
+                                    Toast.makeText(
+                                            MainActivity.this,
+                                            "Usuario deslogeado del sistema",
+                                            Toast.LENGTH_SHORT)
+                                            .show();
+                                else{
+                                    logoutRequest();
+
+                                }
+                            }
+                        })
+                .setNegativeButton("CANCELAR",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+        return builder.create();
+    }
 
     private void showFileChooser() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -217,25 +251,71 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     private void loginRequest(UserLogin userLogin) {
         Retrofit.Builder builder = new Retrofit.Builder().baseUrl("http://" + ipAddress + ":8081/api/auth/")
                 .addConverterFactory(GsonConverterFactory.create());
 
         Retrofit retrofit = builder.build();
 
-        LoginService client = retrofit.create(LoginService.class);
+        UserService client = retrofit.create(UserService.class);
         Call<LoginResponse>  call = client.login(userLogin);
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-               if(response.code() == 200){
+               if(response.code() == 200)
                    referencesFragment.loginUser(response.body());
-               }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
+                String error = t.getMessage();
+                Toast.makeText(MainActivity.this, "Hubo un error" + t, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void refreshTokenRequest(TokenRefreshRequest request) {
+        Retrofit.Builder builder = new Retrofit.Builder().baseUrl("http://" + ipAddress + ":8081/api/auth/")
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        UserService client = retrofit.create(UserService.class);
+        Call<TokenRefreshResponse>  call = client.refreshToken(request);
+        call.enqueue(new Callback<TokenRefreshResponse>() {
+            @Override
+            public void onResponse(Call<TokenRefreshResponse> call, Response<TokenRefreshResponse> response) {
+                if(response.code() == 200)
+                    referencesFragment.refreshToken(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<TokenRefreshResponse> call, Throwable t) {
+                String error = t.getMessage();
+                Toast.makeText(MainActivity.this, "Hubo un error" + t, Toast.LENGTH_SHORT).show();
+
+            }
+        });
+    }
+
+    private void logoutRequest() {
+        Retrofit.Builder builder = new Retrofit.Builder().baseUrl("http://" + ipAddress + ":8081/api/auth/")
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        UserService client = retrofit.create(UserService.class);
+        Call<MessageResponse>  call = client.logout(referencesFragment.getManager().getAuthenticationData().getToken());
+        call.enqueue(new Callback<MessageResponse>() {
+            @Override
+            public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                if(response.code() == 200)
+                    if(response.body().getMessage().equals("Log out successful!"))
+                        referencesFragment.logoutUser();
+            }
+
+            @Override
+            public void onFailure(Call<MessageResponse> call, Throwable t) {
                 String error = t.getMessage();
                 Toast.makeText(MainActivity.this, "Hubo un error" + t, Toast.LENGTH_SHORT).show();
 

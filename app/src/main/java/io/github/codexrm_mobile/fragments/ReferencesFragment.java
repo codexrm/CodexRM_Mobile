@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 import io.github.codexrm_mobile.R;
 import io.github.codexrm_mobile.Retrofit.LoginResponse;
+import io.github.codexrm_mobile.Retrofit.TokenRefreshResponse;
 import io.github.codexrm_mobile.controller.ReferenceLibraryManager;
 import io.github.codexrm_mobile.model.AuthenticationData;
 import io.github.codexrm_mobile.model.Reference;
@@ -38,6 +39,8 @@ public class ReferencesFragment extends Fragment {
         this.referenceDialog = new ReferenceDialog();
         this.manager = new ReferenceLibraryManager();
     }
+
+    public ReferenceLibraryManager getManager() { return manager; }
 
     public void setImportFormat(String importFormat) { ReferencesFragment.importFormat = importFormat; }
 
@@ -195,47 +198,24 @@ public class ReferencesFragment extends Fragment {
     }
 
     public void loginUser(LoginResponse response){
-
+        String token = response.getTokenType() + " " + response.getAccessToken();
         if(manager.userLogin(new AuthenticationData(response.getId(), response.getUsername(), response.getName(), response.getLastName(), response.getEmail(), response.isEnabled(),
-               response.getAccessToken(), response.getRefreshToken(), response.getTokenExpirationDate(), response.getRefreshTokenExpirationDate(), response.getRoles())))
+                token, response.getRefreshToken(), response.getTokenExpirationDate(), response.getRefreshTokenExpirationDate(), response.getRoles())))
             Toast.makeText(getActivity(), "Usuario logeado satisfactoriamente", Toast.LENGTH_SHORT).show();
 
        else Toast.makeText(getActivity(), "Hubo un error al realizar la solicitud", Toast.LENGTH_SHORT).show();
 
     }
-    public AlertDialog createLogoutDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Cerrar Sesión")
-                .setMessage("Desea cerrar su sesión")
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if(manager.userLogout())
-                                    Toast.makeText(
-                                            getActivity(),
-                                            "Usuario deslogeado del sistema",
-                                            Toast.LENGTH_SHORT)
-                                            .show();
 
-                                else
-                                    Toast.makeText(
-                                            getActivity(),
-                                            "Hubo un error al realizar la solicitud",
-                                            Toast.LENGTH_SHORT)
-                                            .show();
-                            }
-                        })
-                .setNegativeButton("CANCELAR",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
+    public void refreshToken(TokenRefreshResponse response){ manager.refreshToken(response); }
 
-        return builder.create();
+    public boolean verificateUserLogout(){ return manager.verificateUserLogout(); }
+
+    public void logoutUser(){
+       manager.userLogout();
+        Toast.makeText(getActivity(), "Usuario deslogeado", Toast.LENGTH_SHORT).show();
     }
+
 
     private void updateList(){
         // Inicializar el adaptador con la fuente de datos.

@@ -5,11 +5,13 @@ import org.jbibtex.ParseException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
 import io.github.codexrm_mobile.EILibrary.*;
+import io.github.codexrm_mobile.Retrofit.TokenRefreshResponse;
 import io.github.codexrm_mobile.model.*;
 
 public class ReferenceLibraryManager {
@@ -23,49 +25,72 @@ public class ReferenceLibraryManager {
     private final String pathExported = "exportedReference.txt";
 
 
-
     public ReferenceLibraryManager() {
         this.references = new Hashtable<>();
         this.exportFactory = new ExportFactory();
         this.importFactory = new ImportFactory();
-        saveReference(new ArticleReference(1,"Proyecto de medio ambiente", "2008", "mar","aa", "Medina,Juan", "Ciencia y educacion", "1", "3", "10", "3842-4802", true));
-        saveReference(new BookReference(2, "Relacion de las carreras", "2020--2021", "apr","bb", "Navarro,Enrique", "Diaz,Mercedes", "Prencite Hall", "2", "First", "SLND",
-               "NY, EU", "2.", "978-3-16-148410-0", true));
-        saveReference(new BookSectionReference(3,"La educacion secundaria", "20109", "nov","cc", "Soler,Marco", "Ulloa,Alicia", "K.Madriz", "5", "1", "SND",
+        this.authenticationData = new AuthenticationData();
+
+        saveReference(new ArticleReference(1, "Proyecto de medio ambiente", "2008", "mar", "aa", "Medina,Juan", "Ciencia y educacion", "1", "3", "10", "3842-4802", true));
+        saveReference(new BookReference(2, "Relacion de las carreras", "2020--2021", "apr", "bb", "Navarro,Enrique", "Diaz,Mercedes", "Prencite Hall", "2", "First", "SLND",
+                "NY, EU", "2.", "978-3-16-148410-0", true));
+        saveReference(new BookSectionReference(3, "La educacion secundaria", "20109", "nov", "cc", "Soler,Marco", "Ulloa,Alicia", "K.Madriz", "5", "1", "SND",
                 "DF, Mexico", "2.", "9789872562021", "6", "30-50", "DataCD", true));
-        saveReference(new BookLetReference(4,"Introduccion a las funciones", "2016", "dec","dd", "Fernandez,Julia","Int. Ciencias", "Cienfuegos, Cuba", true));
-        saveReference(new ThesisReference(5,"Imagenes", "2023", "jun","ee", "Musa,Berta", "iberoamericana", "Doctorado", "Quito, Ecuador", true));
-        saveReference(new ConferenceProceedingReference(6,"Cambio climatico", "2020", "may","ff", "Medina,Juan", "1", "frist", "LDS", "Barcelona, España", "Ciencia y educacion", "978-980-14-2517-5", "Lucha contra el mundo", true));
-        saveReference(new ConferencePaperReference(7,"Primefaces", "2012", "feb","gg", "Medina,Juan", "Ciencia y educacion", "Medina,Juan", "3", "0", "Informatizacion", "3", "Barcelona, España","23,24","Informatizacion", true));
-        saveReference(new WebPageReference(8,"JavaFX", "2023", "aug","hh", "Medina,Juan", "https://Javafx", true));
+        saveReference(new BookLetReference(4, "Introduccion a las funciones", "2016", "dec", "dd", "Fernandez,Julia", "Int. Ciencias", "Cienfuegos, Cuba", true));
+        saveReference(new ThesisReference(5, "Imagenes", "2023", "jun", "ee", "Musa,Berta", "iberoamericana", "Doctorado", "Quito, Ecuador", true));
+        saveReference(new ConferenceProceedingReference(6, "Cambio climatico", "2020", "may", "ff", "Medina,Juan", "1", "frist", "LDS", "Barcelona, España", "Ciencia y educacion", "978-980-14-2517-5", "Lucha contra el mundo", true));
+        saveReference(new ConferencePaperReference(7, "Primefaces", "2012", "feb", "gg", "Medina,Juan", "Ciencia y educacion", "Medina,Juan", "3", "0", "Informatizacion", "3", "Barcelona, España", "23,24", "Informatizacion", true));
+        saveReference(new WebPageReference(8, "JavaFX", "2023", "aug", "hh", "Medina,Juan", "https://Javafx", true));
     }
 
-    public String getPathExported() { return pathExported; }
+    public String getPathExported() {
+        return pathExported;
+    }
 
-    public AuthenticationData getAuthenticationData() { return authenticationData; }
+    public AuthenticationData getAuthenticationData() {
+        return authenticationData;
+    }
 
-    public void setAuthenticationData(AuthenticationData authenticationData) { this.authenticationData = authenticationData; }
+    public void setAuthenticationData(AuthenticationData authenticationData) {
+        this.authenticationData = authenticationData;
+    }
 
-    public ExportFactory getExportFactory() { return exportFactory; }
+    public ExportFactory getExportFactory() {
+        return exportFactory;
+    }
 
-    public void setExportFactory(ExportFactory exportFactory) { this.exportFactory = exportFactory; }
+    public void setExportFactory(ExportFactory exportFactory) {
+        this.exportFactory = exportFactory;
+    }
 
-    public ImportFactory getImportFactory() { return importFactory; }
+    public ImportFactory getImportFactory() {
+        return importFactory;
+    }
 
-    public void setImportFactory(ImportFactory importFactory) { this.importFactory = importFactory; }
+    public void setImportFactory(ImportFactory importFactory) {
+        this.importFactory = importFactory;
+    }
 
-    public UserLogin getUserLogin() { return userLogin; }
+    public UserLogin getUserLogin() {
+        return userLogin;
+    }
 
-    public void setUserLogin(UserLogin userLogin) { this.userLogin = userLogin; }
+    public void setUserLogin(UserLogin userLogin) {
+        this.userLogin = userLogin;
+    }
 
-    private void saveReference(Reference reference) { references.put(reference.getId(), reference); }
+    private void saveReference(Reference reference) {
+        references.put(reference.getId(), reference);
+    }
 
-    public List<Reference> getReference() { return new ArrayList<>(references.values()); }
+    public List<Reference> getReference() {
+        return new ArrayList<>(references.values());
+    }
 
     //Reference
     public boolean syncReferences() {
         verificateExpiationDate();
-       return false;
+        return false;
     }
 
     public void exportReferenceList(ArrayList<Reference> referenceList, String format) throws IOException {
@@ -76,7 +101,7 @@ public class ReferenceLibraryManager {
     public void importReferences(File file, String format) throws IOException, ParseException {
         Import importer = importFactory.getImport(format);
         ArrayList<Reference> referenceImported = importer.readFile(file);
-        for(Reference ref: referenceImported){
+        for (Reference ref : referenceImported) {
             ref.setId(maxValueKeys() + 1);
             references.put(ref.getId(), ref);
         }
@@ -85,43 +110,57 @@ public class ReferenceLibraryManager {
 
     //User
     public boolean userLogin(AuthenticationData authenticationData) {
-        if(authenticationData.getToken().isEmpty()){
+        if (authenticationData.getToken().isEmpty()) {
             return false;
-        }else{
+        } else {
             this.authenticationData = authenticationData;
             return true;
         }
     }
 
-    public boolean userLogout() {
+    public boolean verificateUserLogout() {
+        if (authenticationData.getToken() == null) {
+            return true;
+        } else {
+            if (authenticationData.getRefreshToken() != null) {
+                if (verificateExpiationDate())
+                    return true;
+            }
+        }
         return false;
     }
 
+    public void userLogout() {
+        authenticationData.setToken(null);
+        authenticationData.setRefreshToken(null);
+        authenticationData.setTokenExpirationDate(null);
+        authenticationData.setRefreshTokenExpirationDate(new Date());
+    }
+
+
     public boolean verificateAutentication() {
         boolean isAuthentication = true;
-        /*if(referenceLibrary.getAuthenticationData().getUsername().equals("guest")){
+        if (authenticationData.getUsername() == null) {
             isAuthentication = false;
-        }
-        else{
-            if(referenceLibrary.getAuthenticationData().getRefreshTokenExpirationDate().before(new Date())){
+        } else {
+            if (authenticationData.getRefreshTokenExpirationDate().before(new Date())) {
                 isAuthentication = false;
             }
-        }*/
+        }
         return isAuthentication;
     }
 
-    private void verificateExpiationDate() {
-       /* if(referenceLibrary.getAuthenticationData().getTokenExpirationDate().before(new Date())){
-            refreshToken();
-        }*/
+    private boolean verificateExpiationDate() {
+        if (authenticationData.getTokenExpirationDate().before(new Date()))
+            return true;
+        else return false;
+
     }
 
-    private void refreshToken(){
-       /* TokenRefreshResponse response = service.refreshToken(new TokenRefreshRequest(referenceLibrary.getAuthenticationData().getRefreshToken()));
-        referenceLibrary.getAuthenticationData().setToken(response.getTokenType()  + " " + response.getAccessToken());
-        referenceLibrary.getAuthenticationData().setRefreshToken(response.getRefreshToken());
-        referenceLibrary.getAuthenticationData().setTokenExpirationDate(response.getTokenExpirationDate());
-        saveReferenceTable();*/
+    public void refreshToken(TokenRefreshResponse response) {
+        authenticationData.setToken(response.getTokenType() + " " + response.getAccessToken());
+        authenticationData.setRefreshToken(response.getRefreshToken());
+        authenticationData.setTokenExpirationDate(response.getTokenExpirationDate());
     }
 
     private Integer maxValueKeys() {
