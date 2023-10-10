@@ -21,15 +21,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.File;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import io.github.codexrm_mobile.Retrofit.LoginResponse;
-import io.github.codexrm_mobile.Retrofit.MessageResponse;
-import io.github.codexrm_mobile.Retrofit.TokenRefreshRequest;
-import io.github.codexrm_mobile.Retrofit.TokenRefreshResponse;
-import io.github.codexrm_mobile.Retrofit.UserService;
-import io.github.codexrm_mobile.fragments.ReferencesFragment;
-import io.github.codexrm_mobile.model.UserLogin;
+import java.io.File;
+import java.util.ArrayList;
+
+import io.github.codexrm_mobile.model.dto.ReferenceDTO;
+import io.github.codexrm_mobile.model.retrofit.*;
+import io.github.codexrm_mobile.view.ReferencesFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,13 +38,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
+    private ReferencesFragment referencesFragment;
+    private static String ipAddress;
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
-    private ReferencesFragment referencesFragment;
-    private static String ipAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,11 +77,11 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.ipAddress:
-                createIpAdddressDialog().show();
+                createIpAddressDialog().show();
                 return true;
 
             case R.id.sync:
-                referencesFragment.createSyncDialog().show();
+                createSyncDialog().show();
                 return true;
 
             case R.id.expRis:
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public AlertDialog createIpAdddressDialog() {
+    public AlertDialog createIpAddressDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -171,10 +171,10 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(
                                         v.getContext(),
                                         "Debe establecer la Dirección IP",
-                                        Toast.LENGTH_SHORT)
+                                        Toast.LENGTH_LONG)
                                         .show();
                             else{
-                                loginRequest(new UserLogin(username.getText().toString(), password.getText().toString()));
+                                loginRequest(new LoginRequest(username.getText().toString(), password.getText().toString()));
                             }
                         }
                     }
@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.makeText(
                                             MainActivity.this,
                                             "Usuario deslogeado del sistema",
-                                            Toast.LENGTH_SHORT)
+                                            Toast.LENGTH_LONG)
                                             .show();
                                 else{
                                     logoutRequest();
@@ -214,16 +214,38 @@ public class MainActivity extends AppCompatActivity {
         return builder.create();
     }
 
-    private void showFileChooser() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
+    public AlertDialog createSyncDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        try {
-            startActivityForResult(Intent.createChooser(intent, "Seleccione el fichero"), 100);
-        } catch (Exception exception) {
-            Toast.makeText(this, "Plase install a file manager.", Toast.LENGTH_SHORT).show();
-        }
+        builder.setTitle("Sincronizar Referencias")
+                .setMessage("Desea realizar la sincronización de las referencias con el servidor central")
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                if(referencesFragment.verificateAuthentication()){
+                                    if(referencesFragment.verificateToken()){
+                                        refreshTokenRequest(new TokenRefreshRequest(referencesFragment.getManager().getAuthenticationData().getRefreshToken()));
+                                    }
+                                    syncReferenceRequest(0, referencesFragment.getManager().getAuthenticationData().getToken(), referencesFragment.createSyncRequest());
+
+                                }else{
+                                    Toast.makeText(MainActivity.this,
+                                            "Usario no autenticado",
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        })
+                .setNegativeButton("CANCELAR",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+        return builder.create();
     }
 
     @Override
@@ -235,6 +257,18 @@ public class MainActivity extends AppCompatActivity {
             referencesFragment.createImportReference(new File(String.valueOf(Environment.getExternalStoragePublicDirectory(pathS[1]))));
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void showFileChooser() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        try {
+            startActivityForResult(Intent.createChooser(intent, "Seleccione el fichero"), 100);
+        } catch (Exception exception) {
+            Toast.makeText(this, "Por favor instale un administrador de archivos.", Toast.LENGTH_LONG).show();
+        }
     }
 
     private static void verifyStoragePermissions(Activity activity) {
@@ -251,25 +285,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loginRequest(UserLogin userLogin) {
+    private void loginRequest(LoginRequest loginRequest) {
+
         Retrofit.Builder builder = new Retrofit.Builder().baseUrl("http://" + ipAddress + ":8081/api/auth/")
                 .addConverterFactory(GsonConverterFactory.create());
 
         Retrofit retrofit = builder.build();
 
         UserService client = retrofit.create(UserService.class);
-        Call<LoginResponse>  call = client.login(userLogin);
+        Call<LoginResponse>  call = client.login(loginRequest);
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                if(response.code() == 200)
                    referencesFragment.loginUser(response.body());
+
+               else  Toast.makeText(MainActivity.this, "No se pudo realizar la solicitud", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                String error = t.getMessage();
-                Toast.makeText(MainActivity.this, "Hubo un error" + t, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Hubo un error" + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -287,13 +323,13 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<TokenRefreshResponse> call, Response<TokenRefreshResponse> response) {
                 if(response.code() == 200)
                     referencesFragment.refreshToken(response.body());
+
+                else  Toast.makeText(MainActivity.this, "No se pudo realizar la solicitud", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onFailure(Call<TokenRefreshResponse> call, Throwable t) {
-                String error = t.getMessage();
-                Toast.makeText(MainActivity.this, "Hubo un error" + t, Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(MainActivity.this, "Hubo un error" + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -309,18 +345,62 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<MessageResponse>() {
             @Override
             public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
-                if(response.code() == 200)
+                if(response.code() == 200){
                     if(response.body().getMessage().equals("Log out successful!"))
                         referencesFragment.logoutUser();
+                }
+                else  Toast.makeText(MainActivity.this, "No se pudo realizar la solicitud", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onFailure(Call<MessageResponse> call, Throwable t) {
-                String error = t.getMessage();
-                Toast.makeText(MainActivity.this, "Hubo un error" + t, Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(MainActivity.this, "Hubo un error" + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void syncReferenceRequest(Integer page, String token, SyncRequest request) {
+        GsonBuilder builderG = new GsonBuilder();
+        builderG.registerTypeAdapter(ReferenceDTO.class, new DeserializerJsonObject<ReferenceDTO>());
+        builderG.registerTypeAdapter(ReferenceDTO.class, new SerializeJsonObject<ReferenceDTO>());
+        builderG.serializeNulls();
+
+
+        Gson gson = builderG.create();
+
+        String a = gson.toJson(request);
+
+        Retrofit.Builder builder = new Retrofit.Builder().baseUrl("http://" + ipAddress + ":8081/api/Reference/")
+                .addConverterFactory(GsonConverterFactory.create(gson));
+
+        Retrofit retrofit = builder.build();
+
+        UserService client = retrofit.create(UserService.class);
+        Call<SyncResponse>  call = client.sync(page, token, request);
+        call.enqueue(new Callback<SyncResponse>() {
+            @Override
+            public void onResponse(Call<SyncResponse> call, Response<SyncResponse> response) {
+                if(response.code() == 200)
+                synchronizedReferences(response.body());
+
+                else Toast.makeText(MainActivity.this, "No se pudo realizar la solicitud", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onFailure(Call<SyncResponse> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Hubo un error" + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void synchronizedReferences(SyncResponse response){
+
+        ArrayList<ReferenceDTO> referenceList = new ArrayList<>();
+        referenceList.addAll(response.getReferenceDTOList());
+        if(referenceList.size() != response.getPageDTO().getTotalElement())
+            syncReferenceRequest(response.getPageDTO().getCurrentPage() + 1, referencesFragment.getManager().getAuthenticationData().getToken(), new SyncRequest());
+
+        else referencesFragment.syncReferences(referenceList);
     }
 }
 
