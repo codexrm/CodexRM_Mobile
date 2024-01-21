@@ -1,1 +1,2 @@
 # CodexRM_Mobile
+Aplicación móvil para la gestión de referencias bibliográficas. Encargado de mostrar toda la información referente a los siguientes tipos de referencias bibliográficas: artículo, libro, sección de libro, folleto, actas de congreso, tesis, documento de sesión y páginas web. Brinda, las funcionalidades de exportar/importar dichas referencias en los formatos RIS y BibTeX. Además de sincronizar toda la información con el repocitorio central.
